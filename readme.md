@@ -1,12 +1,12 @@
-# 📚 Python Learning Journey @ Skill Academy  
+# 📚 Python Learning Journey
 **✨ Repositori Pembelajaran Python dari Dasar hingga Proyek Nyata**  
 
-Selamat datang di repositori pembelajaran Python saya! Di sini, saya mendokumentasikan **perjalanan belajar Python** melalui kursus di [Skill Academy](https://skillacademy.com/), mulai dari konsep dasar hingga proyek aplikatif. Setiap kode, catatan, dan proyek di sini adalah bukti progres saya dalam menguasai Python.  
+Selamat datang di repositori pembelajaran Python saya! Di sini, saya mendokumentasikan **perjalanan belajar Python** melalui berbagai kursus video di [YouTube](https://www.youtube.com/), mulai dari konsep dasar hingga proyek aplikatif. Setiap kode, catatan, dan proyek di sini adalah bukti progres saya dalam menguasai Python.  
 
 ---
 
 ## 🚀 Apa yang Ada di Repositori Ini?  
-- 📂 **Materi Belajar**: Kode contoh dari modul webinar Skill Academy (dasar Python, OOP, dll).  
+- 📂 **Materi Belajar**: Kode contoh dari modul webinar yang saya temukan random (dasar Python, OOP, dll).  
 - 🛠️ **Proyek Latihan**: Implementasi konsep Python dalam fun mini-project.  
 - 📝 **Catatan Pribadi**: Ringkasan konsep penting dengan penjelasan sederhana.  
 - 🎯 **Proyek Akhir**: Aplikasi Python utuh hasil pembelajaran (Streamlit, GUI, dll).  
