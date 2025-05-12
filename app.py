@@ -43,7 +43,7 @@ def setup_page_config():
 
 def show_header():
     """Display application header and disclaimer."""
-    st.header("🧮 Kalkulator Insentif Sales Sederhana 🧮")
+    st.header("Kalkulator Insentif Sales Sederhana")
     st.subheader("Aplikasi web sederhana untuk menghitung insentif sales berdasarkan data portofolionya")
     
     st.markdown("---")
