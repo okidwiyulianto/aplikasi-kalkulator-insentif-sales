@@ -325,7 +325,7 @@ def show_footer():
         }
         </style>
         <div class="footer">
-            <p><b>© 2025 OKI DWI YULIANTO | Made with ❤️ at Cluster Cilacap</b></p>
+            <p><b>© 2025 ꦲꦺꦴꦏꦶ ꦢ꧀ꦮꦶ ꦪꦸꦭꦶꦪꦤ꧀ꦠ | 💻 Aplikasi ini dibuat di Pos Ronda sambil denger lagunya Diva Hani - Mari Berjoget🕺</b></p>
         </div>
         """,
         unsafe_allow_html=True
