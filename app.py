@@ -1,4 +1,36 @@
 import streamlit as st
+import locale # Impor modul locale
+
+def format_rupiah(value):
+    """Formats a number into Indonesian Rupiah currency format (RpX.XXX.XXX,XX)."""
+    try:
+        # Coba atur locale ke Indonesian, abaikan jika gagal (misal, locale tidak terinstall)
+        try:
+            locale.setlocale(locale.LC_ALL, 'id_ID.UTF-8')
+        except locale.Error:
+            # Jika locale id_ID tidak tersedia, gunakan cara manual fallback
+            # Format dengan pemisah standar (koma ribuan, titik desimal)
+            formatted_string = f"{float(value):,.2f}" # Contoh: 3,000,000.00
+            # Tukar pemisah secara manual
+            int_part, dec_part = formatted_string.split('.')
+            int_part_id = int_part.replace(',', '.') # Ganti koma ribuan -> titik ribuan
+            return f"Rp{int_part_id},{dec_part}"
+
+        # Jika locale id_ID berhasil diatur, gunakan format locale
+        # '%.2f' untuk dua desimal, grouping=True untuk pemisah ribuan
+        return locale.format_string("Rp%.2f", float(value), grouping=True)
+
+    except (ValueError, TypeError):
+        # Jika input bukan angka, kembalikan nilai default/error
+        return "Rp0,00"
+    finally:
+        # Selalu kembalikan locale ke default sistem setelah selesai
+        # untuk menghindari efek samping pada bagian lain aplikasi.
+        # Kosongkan argumen kedua untuk kembali ke default.
+        try:
+            locale.setlocale(locale.LC_ALL, '')
+        except locale.Error:
+            pass # Abaikan jika gagal mengembalikan locale
 
 def setup_page_config():
     """Configure the Streamlit page settings."""
@@ -301,19 +333,105 @@ def show_footer():
 
 def calculate_incentive():
     """Calculate the incentive based on input data."""
-    # Set form submitted flag
-    st.session_state.form_submitted = True
-    
-    st.success("Perhitungan insentif berhasil!")
-    
-    # Example display (replace with actual calculation)
-    st.write("### Hasil Perhitungan Insentif")
-    st.write(f"NIP: {st.session_state.get('nip', '')}")
-    st.write(f"Nama: {st.session_state.get('nama', '')}")
-    st.write(f"Grading: {st.session_state.get('grading', '')}")
-    
-    # Add your actual calculation logic here
-    st.info("Detail perhitungan akan ditampilkan di sini sesuai dengan formula insentif yang berlaku.")
+    try:
+        # Set form submitted flag
+        st.session_state.form_submitted = True
+
+        # 1. Mengambil data input (tidak berubah)
+        grading = st.session_state.get('grading', '')
+        bade_kur = st.session_state.get('bade_kur', 0)
+        bade_kum = st.session_state.get('bade_kum', 0)
+        bade_kol1 = st.session_state.get('bade_kol1', 0)
+        bade_kol1_bulan_sebelumnya = st.session_state.get('bade_kol1_bulan_sebelumnya', 0)
+        debitur_trx = st.session_state.get('debitur_trx', 0)
+        debitur_perdagangan = st.session_state.get('debitur_perdagangan', 0)
+        nett_booking_kur = st.session_state.get('nett_booking_kur', 0)
+        nett_booking_kum = st.session_state.get('nett_booking_kum', 0)
+
+        # 2. Perhitungan komponen dasar (tidak berubah)
+        bade_blend = bade_kur + bade_kum
+
+        target_grading = {
+            "Trainee": 1, # Asumsi ini mungkin perlu disesuaikan jika ini nilai uang
+            "Junior": 2_000_000_000,
+            "Senior": 4_000_000_000,
+            "Executive": 10_000_000_000
+        }.get(grading, 0)
+
+        trx_deb = (debitur_trx / debitur_perdagangan) if debitur_perdagangan != 0 else 0
+        kol_lancar = (bade_kol1 / bade_kol1_bulan_sebelumnya) if bade_kol1_bulan_sebelumnya != 0 else 0
+
+        # 3. Perhitungan kriteria penentu (tidak berubah)
+        kriteria_penentu = (
+            (1 if bade_blend >= target_grading else 0) +
+            (1 if trx_deb >= 0.1 or debitur_perdagangan == 0 else 0) +
+            (1 if kol_lancar >= 0.99 else 0)
+        )
+
+        # 4. Penentuan parameter pengali (tidak berubah)
+        parameter_pengali_mapping = {
+            ("Executive", 3): 2.0,
+            ("Senior", 3): 1.5,
+            ("Junior", 3): 1.25,
+            ("Trainee", 3): 1.0,
+            ("Executive", 2): 1.0,
+            ("Senior", 2): 1.0,
+            ("Junior", 2): 0.75,
+            ("Trainee", 2): 0.75,
+        }
+        parameter_pengali = parameter_pengali_mapping.get(
+            (grading, kriteria_penentu), 0.5  # Default 0.5 untuk semua kasus lain
+        )
+
+        # 5. Perhitungan parameter target booking (tidak berubah)
+        parameter_target_booking = {
+            "Trainee": 350_000_000,
+            "Junior": 500_000_000,
+            "Senior": 850_000_000,
+            "Executive": 1_200_000_000
+        }.get(grading, 0)
+
+        # 6. Perhitungan nett booking (tidak berubah)
+        nett_booking_blend = nett_booking_kur + nett_booking_kum
+        persentase_nett_booking_blend = (
+            nett_booking_blend / parameter_target_booking
+            if parameter_target_booking != 0 else 0
+        )
+
+        # 7. Menampilkan hasil perhitungan <<<---- UBAH BAGIAN INI
+        st.success("Perhitungan insentif berhasil!")
+
+        st.write("### Hasil Perhitungan Insentif")
+        st.write(f"NIP: {st.session_state.get('nip', '')}")
+        st.write(f"Nama: {st.session_state.get('nama', '')}")
+        st.write(f"Grading: {grading}")
+
+        st.write("### Komponen Perhitungan")
+        # Gunakan format_rupiah untuk nilai mata uang
+        st.write(f"1. Bade Blend: {format_rupiah(bade_blend)}")
+        st.write(f"2. Target Grading: {format_rupiah(target_grading)}") # Jika target grading adalah Rupiah
+        # Jika target grading Trainee=1 bukan Rupiah, jangan format:
+        # st.write(f"2. Target Grading: {target_grading if grading != 'Trainee' else 'N/A'} {'' if grading == 'Trainee' else format_rupiah(target_grading)}")
+
+        # Persentase tetap menggunakan format %
+        st.write(f"3. Rasio Transaksi Debitur: {trx_deb:.2%}")
+        st.write(f"4. Rasio Kol Lancar: {kol_lancar:.2%}")
+
+        # Nilai numerik non-mata uang tidak perlu format
+        st.write(f"5. Kriteria Penentu: {kriteria_penentu}")
+        st.write(f"6. Parameter Pengali: {parameter_pengali:.2f}")
+
+        # Gunakan format_rupiah untuk nilai mata uang
+        st.write(f"7. Target Booking: {format_rupiah(parameter_target_booking)}")
+        st.write(f"8. Nett Booking Blend: {format_rupiah(nett_booking_blend)}")
+
+        # Persentase tetap menggunakan format %
+        st.write(f"9. Persentase Nett Booking: {persentase_nett_booking_blend:.2%}")
+
+    except ZeroDivisionError:
+        st.error("Error: Terdapat pembagian dengan nol dalam perhitungan")
+    except Exception as e:
+        st.error(f"Terjadi kesalahan dalam perhitungan: {str(e)}")
 
 def main():
     """Main application function."""
