@@ -325,7 +325,9 @@ def show_footer():
         }
         </style>
         <div class="footer">
-            <p><b>© 2025 ꦲꦺꦴꦏꦶ ꦢ꧀ꦮꦶ ꦪꦸꦭꦶꦪꦤ꧀ꦠ | 💻 Aplikasi ini dibuat di Pos Ronda sambil denger lagunya Diva Hani - Mari Berjoget🕺</b></p>
+            <p><b>🚀 Launching from <strong>Cluster Cilacap</strong> | 
+       📍 Coordinates: -7.731499865514252, 109.00971181063906 | 
+       👨‍💻 Developer: <span id="pedas-meter">Oki Dwi Yulianto</span></b></p>
         </div>
         """,
         unsafe_allow_html=True
