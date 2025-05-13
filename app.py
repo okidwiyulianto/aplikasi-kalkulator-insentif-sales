@@ -325,7 +325,7 @@ def show_footer():
         }
         </style>
         <div class="footer">
-            <p><b>©️ 2025 | 👨‍💻 Developer: OKI DWI YULIANTO</b></p>
+            <p><b>©️ 2025 | 👨‍💻 OKI DWI YULIANTO</b></p>
         </div>
         """,
         unsafe_allow_html=True
