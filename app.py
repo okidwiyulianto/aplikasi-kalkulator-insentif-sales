@@ -320,14 +320,12 @@ def show_footer():
             background-color: rgb(0, 61, 121);
             color: #fff;
             text-align: center;
-            padding: 10px;
-            font-size: 1em;
+            padding: 5px;
+            font-size: 0.9em;
         }
         </style>
         <div class="footer">
-            <p><b>🚀 Launching from <strong>Cluster Cilacap</strong> | 
-       📍 Coordinates: -7.731499865514252, 109.00971181063906 | 
-       👨‍💻 Developer: <span id="pedas-meter">Oki Dwi Yulianto</span></b></p>
+            <p><b>©️ 2025 | 👨‍💻 Developer: OKI DWI YULIANTO</b></p>
         </div>
         """,
         unsafe_allow_html=True
@@ -338,40 +336,46 @@ def calculate_incentive():
     try:
         # Set form submitted flag
         st.session_state.form_submitted = True
-
-        # 1. Mengambil data input (tidak berubah)
+        
+        # 1. Mengambil data dari session state
         grading = st.session_state.get('grading', '')
-        bade_kur = st.session_state.get('bade_kur', 0)
-        bade_kum = st.session_state.get('bade_kum', 0)
-        bade_kol1 = st.session_state.get('bade_kol1', 0)
-        bade_kol1_bulan_sebelumnya = st.session_state.get('bade_kol1_bulan_sebelumnya', 0)
-        debitur_trx = st.session_state.get('debitur_trx', 0)
-        debitur_perdagangan = st.session_state.get('debitur_perdagangan', 0)
-        nett_booking_kur = st.session_state.get('nett_booking_kur', 0)
-        nett_booking_kum = st.session_state.get('nett_booking_kum', 0)
+        bade_kur = float(st.session_state.get('bade_kur', 0))
+        bade_kum = float(st.session_state.get('bade_kum', 0))
+        bade_blend_sebelumnya = float(st.session_state.get('bade_blend_sebelumnya', 0))
+        debitur_trx = float(st.session_state.get('debitur_trx', 0))
+        debitur_perdagangan = float(st.session_state.get('debitur_perdagangan', 0))
+        bade_kol1 = float(st.session_state.get('bade_kol1', 0))
+        bade_kol1_bulan_sebelumnya = float(st.session_state.get('bade_kol1_bulan_sebelumnya', 0))
+        nett_booking_kur = float(st.session_state.get('nett_booking_kur', 0))
+        nett_booking_kum = float(st.session_state.get('nett_booking_kum', 0))
 
-        # 2. Perhitungan komponen dasar (tidak berubah)
+        # 2. Perhitungan Komponen Dasar
         bade_blend = bade_kur + bade_kum
-
-        target_grading = {
-            "Trainee": 1, # Asumsi ini mungkin perlu disesuaikan jika ini nilai uang
+        
+        # Target berdasarkan grading
+        target_grading_map = {
+            "Trainee": 1,
             "Junior": 2_000_000_000,
             "Senior": 4_000_000_000,
             "Executive": 10_000_000_000
-        }.get(grading, 0)
-
-        trx_deb = (debitur_trx / debitur_perdagangan) if debitur_perdagangan != 0 else 0
-        kol_lancar = (bade_kol1 / bade_kol1_bulan_sebelumnya) if bade_kol1_bulan_sebelumnya != 0 else 0
-
-        # 3. Perhitungan kriteria penentu (tidak berubah)
+        }
+        target_grading = target_grading_map.get(grading, 0)
+        
+        # Rasio transaksi debitur
+        trx_deb = debitur_trx / debitur_perdagangan if debitur_perdagangan != 0 else 0
+        
+        # Rasio KOL lancar
+        kol_lancar = bade_kol1 / bade_kol1_bulan_sebelumnya if bade_kol1_bulan_sebelumnya != 0 else 0
+        
+        # 3. Perhitungan Kriteria Penentu
         kriteria_penentu = (
             (1 if bade_blend >= target_grading else 0) +
             (1 if trx_deb >= 0.1 or debitur_perdagangan == 0 else 0) +
-            (1 if kol_lancar >= 0.99 else 0)
+            (1 if abs(kol_lancar - 0.99) < 0.0001 else 0)
         )
-
-        # 4. Penentuan parameter pengali (tidak berubah)
-        parameter_pengali_mapping = {
+        
+        # 4. Parameter Pengali
+        parameter_pengali_map = {
             ("Executive", 3): 2.0,
             ("Senior", 3): 1.5,
             ("Junior", 3): 1.25,
@@ -379,61 +383,90 @@ def calculate_incentive():
             ("Executive", 2): 1.0,
             ("Senior", 2): 1.0,
             ("Junior", 2): 0.75,
-            ("Trainee", 2): 0.75,
+            ("Trainee", 2): 0.75
         }
-        parameter_pengali = parameter_pengali_mapping.get(
-            (grading, kriteria_penentu), 0.5  # Default 0.5 untuk semua kasus lain
-        )
-
-        # 5. Perhitungan parameter target booking (tidak berubah)
-        parameter_target_booking = {
+        parameter_pengali = parameter_pengali_map.get((grading, kriteria_penentu), 0.5)
+        
+        # 5. Parameter Target Booking
+        parameter_target_booking_map = {
             "Trainee": 350_000_000,
             "Junior": 500_000_000,
             "Senior": 850_000_000,
             "Executive": 1_200_000_000
-        }.get(grading, 0)
-
-        # 6. Perhitungan nett booking (tidak berubah)
+        }
+        parameter_target_booking = parameter_target_booking_map.get(grading, 0)
+        
+        # 6. Perhitungan Nett Booking
         nett_booking_blend = nett_booking_kur + nett_booking_kum
         persentase_nett_booking_blend = (
-            nett_booking_blend / parameter_target_booking
-            if parameter_target_booking != 0 else 0
+            nett_booking_blend / parameter_target_booking if parameter_target_booking != 0 else 0
         )
-
-        # 7. Menampilkan hasil perhitungan <<<---- UBAH BAGIAN INI
-        st.success("Perhitungan insentif berhasil!")
-
-        st.write("### Hasil Perhitungan Insentif")
-        st.write(f"NIP: {st.session_state.get('nip', '')}")
-        st.write(f"Nama: {st.session_state.get('nama', '')}")
-        st.write(f"Grading: {grading}")
-
-        st.write("### Komponen Perhitungan")
-        # Gunakan format_rupiah untuk nilai mata uang
-        st.write(f"1. Bade Blend: {format_rupiah(bade_blend)}")
-        st.write(f"2. Target Grading: {format_rupiah(target_grading)}") # Jika target grading adalah Rupiah
-        # Jika target grading Trainee=1 bukan Rupiah, jangan format:
-        # st.write(f"2. Target Grading: {target_grading if grading != 'Trainee' else 'N/A'} {'' if grading == 'Trainee' else format_rupiah(target_grading)}")
-
-        # Persentase tetap menggunakan format %
-        st.write(f"3. Rasio Transaksi Debitur: {trx_deb:.2%}")
-        st.write(f"4. Rasio Kol Lancar: {kol_lancar:.2%}")
-
-        # Nilai numerik non-mata uang tidak perlu format
-        st.write(f"5. Kriteria Penentu: {kriteria_penentu}")
-        st.write(f"6. Parameter Pengali: {parameter_pengali:.2f}")
-
-        # Gunakan format_rupiah untuk nilai mata uang
-        st.write(f"7. Target Booking: {format_rupiah(parameter_target_booking)}")
-        st.write(f"8. Nett Booking Blend: {format_rupiah(nett_booking_blend)}")
-
-        # Persentase tetap menggunakan format %
-        st.write(f"9. Persentase Nett Booking: {persentase_nett_booking_blend:.2%}")
-
+        
+        persentase_nett_booking_kum = (
+            nett_booking_kum / nett_booking_blend if nett_booking_blend != 0 else 0
+        )
+        
+        persentase_nett_booking_kur = (
+            nett_booking_kur / nett_booking_blend if nett_booking_blend != 0 else 0
+        )
+        
+        # 7. Pengali Main Booking
+        def determine_booking_multiplier():
+            if persentase_nett_booking_blend >= 1.0:  # >= 100%
+                if bade_blend >= bade_blend_sebelumnya:
+                    return 1.0
+                return 0.7
+            elif persentase_nett_booking_blend >= 0.8:  # >= 80%
+                if bade_blend >= bade_blend_sebelumnya:
+                    return 0.7
+                return 0.7
+            else:  # < 80%
+                return 0.3
+        
+        pengali_main_booking = parameter_pengali * determine_booking_multiplier()
+        
+        # 8. Main Insentif Booking
+        main_insentif_booking = (nett_booking_blend / 10_000_000) * 10_000 * pengali_main_booking
+        
+        # 9. Menampilkan Hasil
+        st.success("💰 Perhitungan insentif berhasil!")
+        
+        st.write("### 📊 Hasil Perhitungan Insentif")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.write("**Data Sales:**")
+            st.write(f"NIP: {st.session_state.get('nip', '')}")
+            st.write(f"Nama: {st.session_state.get('nama', '')}")
+            st.write(f"Grading: {grading}")
+        
+        with col2:
+            st.write("**Hasil Akhir:**")
+            st.write(f"Main Insentif Booking: {format_rupiah(main_insentif_booking)}")
+        
+        with st.expander("💡 Detail Komponen Perhitungan"):
+            st.write("#### 1️⃣ Komponen Dasar")
+            st.write(f"- Bade Blend: {format_rupiah(bade_blend)}")
+            st.write(f"- Target Grading: {format_rupiah(target_grading)}")
+            st.write(f"- Rasio Transaksi Debitur: {trx_deb:.2%}")
+            st.write(f"- Rasio KOL Lancar: {kol_lancar:.2%}")
+            
+            st.write("\n#### 2️⃣ Komponen Pengali")
+            st.write(f"- Kriteria Penentu: {kriteria_penentu}")
+            st.write(f"- Parameter Pengali: {parameter_pengali:.2f}")
+            
+            st.write("\n#### 3️⃣ Komponen Booking")
+            st.write(f"- Target Booking: {format_rupiah(parameter_target_booking)}")
+            st.write(f"- Nett Booking Blend: {format_rupiah(nett_booking_blend)}")
+            st.write(f"- Persentase Nett Booking Blend: {persentase_nett_booking_blend:.2%}")
+            st.write(f"- Persentase Nett Booking KUM: {persentase_nett_booking_kum:.2%}")
+            st.write(f"- Persentase Nett Booking KUR: {persentase_nett_booking_kur:.2%}")
+            st.write(f"- Pengali Main Booking: {pengali_main_booking:.2f}")
+        
     except ZeroDivisionError:
-        st.error("Error: Terdapat pembagian dengan nol dalam perhitungan")
+        st.error("❌ Error: Terdapat pembagian dengan nol dalam perhitungan")
     except Exception as e:
-        st.error(f"Terjadi kesalahan dalam perhitungan: {str(e)}")
+        st.error(f"❌ Terjadi kesalahan dalam perhitungan: {str(e)}")
 
 def main():
     """Main application function."""
