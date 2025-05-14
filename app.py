@@ -35,7 +35,7 @@ def format_rupiah(value):
 def setup_page_config():
     """Configure the Streamlit page settings."""
     st.set_page_config(
-        page_title="KISS - Versi 1.0.0",
+        page_title="KISS - Versi 1.0.1",
         page_icon="💋",
         layout="centered",
         initial_sidebar_state="collapsed",
@@ -55,7 +55,7 @@ def show_header():
         border-radius: 5px;
         font-size: 1em;
     ">
-    <strong>🚨DISCLAIMER🚨:</strong><br> Rumus dan komponen perhitungan mengikuti <b><u>KALKULATOR INSENTIF VERSION 1.0.0</b></u>.<br> Pengembang <b><u>tidak bertanggung jawab</b></u> atas kerugian akibat penggunaan data ini.<br> Gunakan hanya sebagai <b><u>alat untuk mempermudah dan referensi pendukung.</b></u>
+    <strong>🚨DISCLAIMER🚨:</strong><br> Rumus dan komponen perhitungan mengikuti <b><u>KALKULATOR INSENTIF VERSION 1.0.1</b></u>.<br> Pengembang <b><u>tidak bertanggung jawab</b></u> atas kerugian akibat penggunaan data ini.<br> Gunakan hanya sebagai <b><u>alat untuk mempermudah dan referensi pendukung.</b></u>
     </div>
     """, unsafe_allow_html=True)
     
