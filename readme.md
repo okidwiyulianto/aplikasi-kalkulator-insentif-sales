@@ -35,10 +35,10 @@ streamlit run app.py
 ## 📂 Struktur Proyek
 ```
 .
-├── app.py              # Main Streamlit application
-├── okidwiyulianto.png  # Bonus file 
-├── requirements.txt    # Dependencies
-└── README.md           # Documentation
+├── 📝app.py              # Main Streamlit application
+├── 📁assets              # Bonus file 
+├── 📝requirements.txt    # Dependencies
+└── 📝README.md           # Documentation
 ```
 
 ## 🤝 Kolaborasi & Kontribusi
