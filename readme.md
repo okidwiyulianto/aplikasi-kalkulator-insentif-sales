@@ -36,7 +36,8 @@ streamlit run app.py
 ```
 .
 ├── 📝app.py              # Main Streamlit application
-├── 📁assets              # Bonus file 
+├── 📁assets              # Berisi file gambar dan pendukung kode
+├── 📁explanations        # Berisi file markdown yang menjelaskan tiap method atau function, inilah yang unik dari repo saya :) 
 ├── 📝requirements.txt    # Dependencies
 └── 📝README.md           # Documentation
 ```
