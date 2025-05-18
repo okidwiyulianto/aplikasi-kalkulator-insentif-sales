@@ -322,7 +322,7 @@ def show_footer():
         }
         </style>
         <div class="footer">
-            <p><b>©️ 2025 | 👨‍💻 OKI DWI YULIANTO</b></p>
+            <p><b>🔄️ Last updated: 14 Mei 2025</b></p>
         </div>
         """,
         unsafe_allow_html=True
