@@ -318,7 +318,7 @@ def show_footer():
             color: #fff;
             text-align: center;
             padding: 5px;
-            font-size: 0.9em;
+            font-size: 1em;
         }
         </style>
         <div class="footer">
